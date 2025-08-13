@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>PNG para PDF</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        max-width: 500px;
+        margin: auto;
+        text-align: center;
+        padding: 20px;
+    }
+    input {
+        margin: 15px 0;
+    }
+    button {
+        padding: 10px 15px;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+
+<h1>Conversor PNG → PDF</h1>
+<input type="file" id="fileInput" accept="image/png"><br>
+<button id="convertBtn">Converter</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+document.getElementById('convertBtn').addEventListener('click', async () => {
+    const file = document.getElementById('fileInput').files[0];
+    if (!file) {
+        alert('Selecione um arquivo PNG primeiro.');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+
+        const img = new Image();
+        img.onload = function() {
+            const imgWidth = 210; // largura A4 mm
+            const imgHeight = (img.height * imgWidth) / img.width;
+            pdf.addImage(img, 'PNG', 0, 0, imgWidth, imgHeight);
+            pdf.save('arquivo.pdf');
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+</script>
+
+</body>
+</html>
