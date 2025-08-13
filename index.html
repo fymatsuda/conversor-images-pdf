@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Conversor de Imagem para PDF</title>
+<title>Conversor de Imagens para PDF</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
     body {
@@ -17,6 +17,9 @@
         color: #444;
     }
     .upload-area {
+        display: block; /* Ocupa linha inteira */
+        width: 100%;
+        max-width: 500px;
         border: 2px dashed #888;
         border-radius: 10px;
         padding: 40px;
@@ -24,7 +27,7 @@
         cursor: pointer;
         transition: all 0.3s ease;
         margin: 20px auto;
-        max-width: 500px;
+        box-sizing: border-box;
     }
     .upload-area:hover {
         background: #eef;
@@ -34,6 +37,8 @@
         display: none;
     }
     button {
+        display: block; /* Garante que fique embaixo */
+        margin: 20px auto 0 auto;
         background: #4a90e2;
         color: white;
         border: none;
@@ -41,7 +46,6 @@
         border-radius: 6px;
         font-size: 16px;
         cursor: pointer;
-        margin-top: 20px;
         transition: background 0.3s ease;
     }
     button:hover {
