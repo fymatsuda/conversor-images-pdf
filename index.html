@@ -2,118 +2,175 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Conversor de Imagens para PDF</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conversor para PDF</title>
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- DocxJS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx-preview/0.3.1/docx-preview.min.js"></script>
 <style>
     body {
         font-family: Arial, sans-serif;
+        background: #f9f9f9;
         margin: 0;
-        background: #f7f9fc;
-        color: #333;
-        text-align: center;
         padding: 20px;
+        color: #333;
     }
     h1 {
-        color: #444;
+        text-align: center;
+        margin-bottom: 20px;
     }
-    .upload-area {
-        display: block; /* Ocupa linha inteira */
-        width: 100%;
-        max-width: 500px;
-        border: 2px dashed #888;
+    .container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        max-width: 1000px;
+        margin: auto;
+    }
+    .card {
+        background: white;
+        padding: 20px;
         border-radius: 10px;
-        padding: 40px;
-        background: #fff;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin: 20px auto;
-        box-sizing: border-box;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        text-align: center;
     }
-    .upload-area:hover {
-        background: #eef;
-        border-color: #4a90e2;
-    }
-    input[type=file] {
-        display: none;
+    input {
+        margin: 10px 0;
     }
     button {
-        display: block; /* Garante que fique embaixo */
-        margin: 20px auto 0 auto;
-        background: #4a90e2;
+        background: #4CAF50;
         color: white;
         border: none;
-        padding: 12px 20px;
-        border-radius: 6px;
-        font-size: 16px;
+        padding: 10px 15px;
         cursor: pointer;
-        transition: background 0.3s ease;
+        border-radius: 5px;
     }
     button:hover {
-        background: #357abd;
-    }
-    footer {
-        margin-top: 30px;
-        font-size: 14px;
-        color: #777;
+        background: #45a049;
     }
 </style>
 </head>
 <body>
 
-<h1>Conversor de Imagens para PDF</h1>
-<p>Envie PNG, JPG ou WEBP e baixe como PDF</p>
+<h1>Conversor para PDF</h1>
+<div class="container">
 
-<label class="upload-area" for="fileInput">
-    Clique ou arraste imagens aqui
-    <br><small>(PNG, JPG, WEBP – múltiplos arquivos)</small>
-</label>
-<input type="file" id="fileInput" accept="image/png, image/jpeg, image/webp" multiple>
+    <!-- Imagens -->
+    <div class="card">
+        <h3>Imagens → PDF</h3>
+        <input type="file" id="imgInput" accept="image/png,image/jpeg,image/webp" multiple>
+        <button onclick="convertImages()">Converter</button>
+    </div>
 
-<button id="convertBtn">Converter para PDF</button>
+    <!-- TXT -->
+    <div class="card">
+        <h3>TXT → PDF</h3>
+        <input type="file" id="txtInput" accept=".txt">
+        <button onclick="convertTXT()">Converter</button>
+    </div>
 
-<footer>
-    Feito com ❤️ – Funciona 100% offline
-</footer>
+    <!-- HTML renderizado -->
+<!--
+    <div class="card">
+        <h3>HTML Renderizado → PDF</h3>
+        <input type="file" id="htmlRenderInput" accept=".html,.htm">
+        <button onclick="convertHTMLRendered()">Converter</button>
+    </div>
+-->
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- HTML texto puro -->
+    <div class="card">
+        <h3>HTML (Código) → PDF</h3>
+        <input type="file" id="htmlTextInput" accept=".html,.htm">
+        <button onclick="convertHTMLText()">Converter</button>
+    </div>
+
+    <!-- DOCX -->
+    <div class="card">
+        <h3>DOCX → PDF</h3>
+        <input type="file" id="docxInput" accept=".docx">
+        <button onclick="convertDOCX()">Converter</button>
+    </div>
+
+</div>
+
 <script>
-const fileInput = document.getElementById('fileInput');
-const convertBtn = document.getElementById('convertBtn');
+const { jsPDF } = window.jspdf;
 
-convertBtn.addEventListener('click', async () => {
-    const files = Array.from(fileInput.files);
-    if (files.length === 0) {
-        alert('Selecione pelo menos uma imagem.');
-        return;
-    }
-
-    const { jsPDF } = window.jspdf;
+// Imagens
+async function convertImages() {
+    const files = document.getElementById("imgInput").files;
+    if (!files.length) return alert("Selecione imagens.");
     const pdf = new jsPDF();
-
     for (let i = 0; i < files.length; i++) {
         const imgData = await readFileAsDataURL(files[i]);
-        const img = await loadImage(imgData);
-
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
-        let imgWidth = pageWidth;
-        let imgHeight = (img.height * imgWidth) / img.width;
-
-        if (imgHeight > pageHeight) {
-            imgHeight = pageHeight;
-            imgWidth = (img.width * imgHeight) / img.height;
-        }
-
         if (i > 0) pdf.addPage();
-        pdf.addImage(img, imgData.includes('png') ? 'PNG' : 'JPEG', 
-                     (pageWidth - imgWidth) / 2, 
-                     (pageHeight - imgHeight) / 2,
-                     imgWidth, imgHeight);
+        pdf.addImage(imgData, "JPEG", 10, 10, 180, 0);
     }
+    pdf.save("imagens.pdf");
+}
 
-    pdf.save('imagens.pdf');
-});
+// TXT
+async function convertTXT() {
+    const file = document.getElementById("txtInput").files[0];
+    if (!file) return alert("Selecione um arquivo TXT.");
+    const text = await readFileAsText(file);
+    const pdf = new jsPDF();
+    const lines = pdf.splitTextToSize(text, 180);
+    pdf.text(lines, 10, 10);
+    pdf.save(file.name.replace(/\.[^/.]+$/, "") + ".pdf");
+}
 
+// HTML renderizado
+/*
+async function convertHTMLRendered() {
+    const file = document.getElementById("htmlRenderInput").files[0];
+    if (!file) return alert("Selecione um arquivo HTML.");
+    const htmlContent = await readFileAsText(file);
+    const pdf = new jsPDF();
+    pdf.html(new DOMParser().parseFromString(htmlContent, "text/html").body, {
+        callback: function (doc) {
+            doc.save(file.name.replace(/\.[^/.]+$/, "") + ".pdf");
+        },
+        x: 10,
+        y: 10
+    });
+}
+*/
+
+// HTML texto puro
+async function convertHTMLText() {
+    const file = document.getElementById("htmlTextInput").files[0];
+    if (!file) return alert("Selecione um arquivo HTML.");
+    const htmlContent = await readFileAsText(file);
+    const safeText = htmlContent.replace(/&/g, "&amp;")
+                                .replace(/</g, "&lt;")
+                                .replace(/>/g, "&gt;");
+    const pdf = new jsPDF();
+    const lines = pdf.splitTextToSize(safeText, 180);
+    pdf.text(lines, 10, 10);
+    pdf.save(file.name.replace(/\.[^/.]+$/, "") + ".pdf");
+}
+
+// DOCX
+async function convertDOCX() {
+    const file = document.getElementById("docxInput").files[0];
+    if (!file) return alert("Selecione um arquivo DOCX.");
+    const arrayBuffer = await readFileAsArrayBuffer(file);
+    const container = document.createElement("div");
+    new window.docxPreview.DocxPreview().render(arrayBuffer, container);
+
+    const pdf = new jsPDF();
+    pdf.html(container, {
+        callback: function (doc) {
+            doc.save(file.name.replace(/\.[^/.]+$/, "") + ".pdf");
+        },
+        x: 10,
+        y: 10
+    });
+}
+
+// Funções auxiliares
 function readFileAsDataURL(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -122,16 +179,22 @@ function readFileAsDataURL(file) {
         reader.readAsDataURL(file);
     });
 }
-
-function loadImage(src) {
+function readFileAsText(file) {
     return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = reject;
-        img.src = src;
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsText(file, "UTF-8");
+    });
+}
+function readFileAsArrayBuffer(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(file);
     });
 }
 </script>
-
 </body>
 </html>
