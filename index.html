@@ -1,200 +1,254 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Conversor para PDF</title>
-<!-- jsPDF -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<!-- DocxJS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/docx-preview/0.3.1/docx-preview.min.js"></script>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f9f9f9;
-        margin: 0;
-        padding: 20px;
-        color: #333;
-    }
-    h1 {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-    .container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-        max-width: 1000px;
-        margin: auto;
-    }
-    .card {
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        text-align: center;
-    }
-    input {
-        margin: 10px 0;
-    }
-    button {
-        background: #4CAF50;
-        color: white;
-        border: none;
-        padding: 10px 15px;
-        cursor: pointer;
-        border-radius: 5px;
-    }
-    button:hover {
-        background: #45a049;
-    }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conversor para PDF</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- jsPDF (imagens/txt) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- html2pdf (HTML renderizado) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- Google APIs -->
+  <script src="https://apis.google.com/js/api.js" async defer></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
-<body>
+<body class="bg-gray-100 min-h-screen">
+  <!-- Cabeçalho visível -->
+  <header class="max-w-5xl mx-auto px-6 py-8 text-center">
+    <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Conversor para PDF</h1>
+    <p class="mt-2 text-gray-500">Imagens, HTML e TXT 100% offline • DOCX com conversão fiel via Google Drive</p>
+  </header>
 
-<h1>Conversor para PDF</h1>
-<div class="container">
+  <main class="max-w-5xl mx-auto px-6 pb-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <!-- Imagens → PDF -->
+    <section class="bg-white shadow rounded-2xl p-6 flex flex-col">
+      <div class="text-4xl mb-3">🖼️</div>
+      <h2 class="text-lg font-semibold">Imagens → PDF</h2>
+      <p class="text-sm text-gray-500 mb-4">PNG, JPG, WEBP (múltiplos)</p>
+      <input type="file" id="imgInput" accept="image/png,image/jpeg,image/webp" multiple class="hidden" />
+      <button id="btnPickImgs" class="w-full mt-auto bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">Selecionar imagens</button>
+      <button id="btnImgsToPdf" class="w-full mt-2 bg-blue-600/90 text-white py-2 rounded-lg hover:bg-blue-700/90">Converter</button>
+    </section>
 
-    <!-- Imagens -->
-    <div class="card">
-        <h3>Imagens → PDF</h3>
-        <input type="file" id="imgInput" accept="image/png,image/jpeg,image/webp" multiple>
-        <button onclick="convertImages()">Converter</button>
-    </div>
+    <!-- HTML → PDF (renderizado) -->
+    <section class="bg-white shadow rounded-2xl p-6 flex flex-col">
+      <div class="text-4xl mb-3">🌐</div>
+      <h2 class="text-lg font-semibold">HTML → PDF</h2>
+      <p class="text-sm text-gray-500 mb-4">Mantém layout/estilos</p>
+      <input type="file" id="htmlInput" accept=".html,.htm" class="hidden" />
+      <button id="btnPickHtml" class="w-full mt-auto bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">Selecionar HTML</button>
+      <button id="btnHtmlToPdf" class="w-full mt-2 bg-indigo-600/90 text-white py-2 rounded-lg hover:bg-indigo-700/90">Converter</button>
+    </section>
 
-    <!-- TXT -->
-    <div class="card">
-        <h3>TXT → PDF</h3>
-        <input type="file" id="txtInput" accept=".txt">
-        <button onclick="convertTXT()">Converter</button>
-    </div>
+    <!-- TXT → PDF -->
+    <section class="bg-white shadow rounded-2xl p-6 flex flex-col">
+      <div class="text-4xl mb-3">📃</div>
+      <h2 class="text-lg font-semibold">TXT → PDF</h2>
+      <p class="text-sm text-gray-500 mb-4">Texto simples (offline)</p>
+      <input type="file" id="txtInput" accept=".txt" class="hidden" />
+      <button id="btnPickTxt" class="w-full mt-auto bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">Selecionar TXT</button>
+      <button id="btnTxtToPdf" class="w-full mt-2 bg-green-600/90 text-white py-2 rounded-lg hover:bg-green-700/90">Converter</button>
+    </section>
 
-    <!-- HTML renderizado -->
-<!--
-    <div class="card">
-        <h3>HTML Renderizado → PDF</h3>
-        <input type="file" id="htmlRenderInput" accept=".html,.htm">
-        <button onclick="convertHTMLRendered()">Converter</button>
-    </div>
--->
+    <!-- DOCX fiel via Google Drive -->
+    <section class="bg-white shadow rounded-2xl p-6 flex flex-col sm:col-span-2 lg:col-span-3">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="text-4xl">📄</div>
+        <div>
+          <h2 class="text-lg font-semibold">DOCX → PDF (Conversão fiel via Google Drive)</h2>
+          <p class="text-sm text-gray-500">Requer login Google. O arquivo é enviado temporariamente ao seu Drive, convertido e apagado.</p>
+        </div>
+      </div>
 
-    <!-- HTML texto puro -->
-    <div class="card">
-        <h3>HTML (Código) → PDF</h3>
-        <input type="file" id="htmlTextInput" accept=".html,.htm">
-        <button onclick="convertHTMLText()">Converter</button>
-    </div>
+      <div class="grid gap-3 sm:grid-cols-2">
+        <div class="bg-gray-50 rounded-xl p-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">1) Conectar ao Google</label>
+          <button id="btnGoogleAuth" class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700">Conectar</button>
+          <p id="authStatus" class="mt-2 text-xs text-gray-500">Não conectado</p>
+        </div>
+        <div class="bg-gray-50 rounded-xl p-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">2) Selecionar arquivo DOCX</label>
+          <input type="file" id="docxInput" accept=".docx" class="block w-full text-sm" />
+          <button id="btnDocxToPdf" class="w-full mt-2 bg-pink-600 text-white py-2 rounded-lg hover:bg-pink-700">Converter fiel (Drive)</button>
+        </div>
+      </div>
 
-    <!-- DOCX -->
-    <div class="card">
-        <h3>DOCX → PDF</h3>
-        <input type="file" id="docxInput" accept=".docx">
-        <button onclick="convertDOCX()">Converter</button>
-    </div>
+      <p id="docxStatus" class="mt-3 text-sm text-gray-600"></p>
+    </section>
+  </main>
 
-</div>
+  <footer class="text-center text-xs text-gray-400 pb-10">© <span id="year"></span> Conversor para PDF</footer>
 
-<script>
-const { jsPDF } = window.jspdf;
+  <script>
+    // Garantir que o <title> apareça na aba
+    document.title = 'Conversor para PDF';
+    document.getElementById('year').textContent = new Date().getFullYear();
 
-// Imagens
-async function convertImages() {
-    const files = document.getElementById("imgInput").files;
-    if (!files.length) return alert("Selecione imagens.");
-    const pdf = new jsPDF();
-    for (let i = 0; i < files.length; i++) {
-        const imgData = await readFileAsDataURL(files[i]);
+    const { jsPDF } = window.jspdf;
+
+    // =============== Imagens → PDF (offline) ===============
+    const imgInput = document.getElementById('imgInput');
+    document.getElementById('btnPickImgs').addEventListener('click', () => imgInput.click());
+
+    document.getElementById('btnImgsToPdf').addEventListener('click', async () => {
+      if (!imgInput.files.length) return alert('Selecione ao menos uma imagem.');
+      const pdf = new jsPDF();
+      for (let i = 0; i < imgInput.files.length; i++) {
+        const dataUrl = await fileToDataURL(imgInput.files[i]);
+        const img = await loadImage(dataUrl);
+        const pageW = pdf.internal.pageSize.getWidth();
+        const pageH = pdf.internal.pageSize.getHeight();
+        let w = pageW, h = (img.height * w) / img.width;
+        if (h > pageH) { h = pageH; w = (img.width * h) / img.height; }
         if (i > 0) pdf.addPage();
-        pdf.addImage(imgData, "JPEG", 10, 10, 180, 0);
+        pdf.addImage(img, dataUrl.includes('png') ? 'PNG' : 'JPEG', (pageW - w)/2, (pageH - h)/2, w, h);
+      }
+      pdf.save('imagens.pdf');
+    });
+
+    // =============== HTML → PDF (renderizado, offline) ===============
+    const htmlInput = document.getElementById('htmlInput');
+    document.getElementById('btnPickHtml').addEventListener('click', () => htmlInput.click());
+    document.getElementById('btnHtmlToPdf').addEventListener('click', async () => {
+      if (!htmlInput.files.length) return alert('Selecione um arquivo HTML.');
+      const text = await htmlInput.files[0].text();
+      const container = document.createElement('div');
+      container.style.padding = '16px';
+      container.innerHTML = text;
+      document.body.appendChild(container);
+      await html2pdf().from(container).set({
+        margin: 10,
+        filename: htmlInput.files[0].name.replace(/\.[^.]+$/, '') + '.pdf',
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      }).save();
+      document.body.removeChild(container);
+    });
+
+    // =============== TXT → PDF (offline) ===============
+    const txtInput = document.getElementById('txtInput');
+    document.getElementById('btnPickTxt').addEventListener('click', () => txtInput.click());
+    document.getElementById('btnTxtToPdf').addEventListener('click', async () => {
+      if (!txtInput.files.length) return alert('Selecione um arquivo TXT.');
+      const text = await txtInput.files[0].text();
+      const pdf = new jsPDF();
+      pdf.setFont('courier', 'normal');
+      const lines = pdf.splitTextToSize(text, 180);
+      pdf.text(lines, 15, 20);
+      pdf.save(txtInput.files[0].name.replace(/\.[^.]+$/, '') + '.pdf');
+    });
+
+    // ======== Utilitários ========
+    function fileToDataURL(file) {
+      return new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = e => res(e.target.result);
+        r.onerror = rej;
+        r.readAsDataURL(file);
+      });
     }
-    pdf.save("imagens.pdf");
-}
+    function loadImage(src) {
+      return new Promise((res, rej) => {
+        const img = new Image();
+        img.onload = () => res(img);
+        img.onerror = rej;
+        img.src = src;
+      });
+    }
 
-// TXT
-async function convertTXT() {
-    const file = document.getElementById("txtInput").files[0];
-    if (!file) return alert("Selecione um arquivo TXT.");
-    const text = await readFileAsText(file);
-    const pdf = new jsPDF();
-    const lines = pdf.splitTextToSize(text, 180);
-    pdf.text(lines, 10, 10);
-    pdf.save(file.name.replace(/\.[^/.]+$/, "") + ".pdf");
-}
+    // =============== Google Drive (OAuth2 + conversão fiel DOCX) ===============
+    const CLIENT_ID = "ferym.schmidt.apps.googleusercontent.com";
+    const API_KEY   = "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";
+    const SCOPES    = "https://www.googleapis.com/auth/drive.file";
 
-// HTML renderizado
-/*
-async function convertHTMLRendered() {
-    const file = document.getElementById("htmlRenderInput").files[0];
-    if (!file) return alert("Selecione um arquivo HTML.");
-    const htmlContent = await readFileAsText(file);
-    const pdf = new jsPDF();
-    pdf.html(new DOMParser().parseFromString(htmlContent, "text/html").body, {
-        callback: function (doc) {
-            doc.save(file.name.replace(/\.[^/.]+$/, "") + ".pdf");
-        },
-        x: 10,
-        y: 10
+    let tokenClient; // GIS
+    let gapiReady = false;
+
+    // gapi é carregado async via script tag; quando pronto, inicializamos o client
+    window.addEventListener('load', () => {
+      if (window.gapi) {
+        gapi.load('client', async () => {
+          await gapi.client.init({
+            apiKey: API_KEY,
+            discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest']
+          });
+          gapiReady = true;
+        });
+      }
+
+      if (window.google && google.accounts && google.accounts.oauth2) {
+        tokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: CLIENT_ID,
+          scope: SCOPES,
+          callback: (resp) => {
+            if (resp && resp.access_token) {
+              document.getElementById('authStatus').textContent = 'Conectado ✅';
+            }
+          }
+        });
+      }
     });
-}
-*/
 
-// HTML texto puro
-async function convertHTMLText() {
-    const file = document.getElementById("htmlTextInput").files[0];
-    if (!file) return alert("Selecione um arquivo HTML.");
-    const htmlContent = await readFileAsText(file);
-    const safeText = htmlContent.replace(/&/g, "&amp;")
-                                .replace(/</g, "&lt;")
-                                .replace(/>/g, "&gt;");
-    const pdf = new jsPDF();
-    const lines = pdf.splitTextToSize(safeText, 180);
-    pdf.text(lines, 10, 10);
-    pdf.save(file.name.replace(/\.[^/.]+$/, "") + ".pdf");
-}
+    // Botão conectar
+    document.getElementById('btnGoogleAuth').addEventListener('click', () => {
+      if (!tokenClient) return alert('OAuth do Google ainda não carregou.');
+      tokenClient.requestAccessToken({ prompt: 'consent' });
+    });
 
-// DOCX
-async function convertDOCX() {
-    const file = document.getElementById("docxInput").files[0];
-    if (!file) return alert("Selecione um arquivo DOCX.");
-    const arrayBuffer = await readFileAsArrayBuffer(file);
-    const container = document.createElement("div");
-    new window.docxPreview.DocxPreview().render(arrayBuffer, container);
+    // Converter DOCX fiel via Drive
+    document.getElementById('btnDocxToPdf').addEventListener('click', async () => {
+      const status = document.getElementById('docxStatus');
+      const input = document.getElementById('docxInput');
+      if (!gapiReady) return alert('Google API ainda não inicializada.');
+      if (!gapi.client.getToken()) return alert('Conecte ao Google primeiro.');
+      if (!input.files.length) return alert('Selecione um arquivo DOCX.');
 
-    const pdf = new jsPDF();
-    pdf.html(container, {
-        callback: function (doc) {
-            doc.save(file.name.replace(/\.[^/.]+$/, "") + ".pdf");
-        },
-        x: 10,
-        y: 10
-    });
-}
+      const file = input.files[0];
+      status.textContent = 'Enviando para o Drive e convertendo…';
 
-// Funções auxiliares
-function readFileAsDataURL(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = e => resolve(e.target.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
+      try {
+        // 1) Upload com conversão para Google Docs (defina o mimeType de metadata para apps.document)
+        const metadata = { name: file.name, mimeType: 'application/vnd.google-apps.document' };
+        const form = new FormData();
+        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+        form.append('file', file);
+
+        const uploadRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', {
+          method: 'POST',
+          headers: { Authorization: 'Bearer ' + gapi.client.getToken().access_token },
+          body: form
+        });
+        if (!uploadRes.ok) throw new Error('Falha no upload');
+        const { id } = await uploadRes.json();
+
+        // 2) Exportar como PDF
+        const exportRes = await fetch(`https://www.googleapis.com/drive/v3/files/${id}/export?mimeType=application/pdf`, {
+          headers: { Authorization: 'Bearer ' + gapi.client.getToken().access_token }
+        });
+        if (!exportRes.ok) throw new Error('Falha ao exportar PDF');
+        const blob = await exportRes.blob();
+
+        // 3) Apagar arquivo temporário
+        await gapi.client.drive.files.delete({ fileId: id });
+
+        // 4) Baixar
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = file.name.replace(/\.docx$/i, '') + '.pdf';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        status.textContent = 'Conversão concluída ✅';
+      } catch (e) {
+        console.error(e);
+        status.textContent = 'Erro na conversão. Verifique as credenciais e permissões.';
+      }
     });
-}
-function readFileAsText(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = e => resolve(e.target.result);
-        reader.onerror = reject;
-        reader.readAsText(file, "UTF-8");
-    });
-}
-function readFileAsArrayBuffer(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = e => resolve(e.target.result);
-        reader.onerror = reject;
-        reader.readAsArrayBuffer(file);
-    });
-}
-</script>
+  </script>
 </body>
 </html>
